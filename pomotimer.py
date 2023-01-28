@@ -3,8 +3,9 @@ import argparse
 import time
 import datetime
 import threading
+import sys
 
-default_times = {'w':1,'r':1}
+default_times = {'w':30,'r':15}
 pomo_running = False
 pomo_ammount = 0
 
@@ -13,10 +14,10 @@ parser.add_argument('-w', '--work', help='Work time', type=int, required=False)
 parser.add_argument('-r', '--rest', help='Rest time', type=int, required=False)
 
 args = parser.parse_args()
-
+    
 toaster = ToastNotifier()
 def end_phase_notify(phase, time):
-    toaster.show_toast("Pomotimer", f"{phase} time has ended. Take {time} minutes of rest!", duration=10)
+    toaster.show_toast("Pomotimer", f"{phase} time has ended. Take {time} minutes of rest!", duration=1)
     
 def start_pomo(time_work, time_rest):
     print(f"Pomodoro timer started with {time_work} minutes of work time and {time_rest} minutes of rest time.")
@@ -26,18 +27,20 @@ def start_pomo(time_work, time_rest):
     tw = datetime.timedelta(minutes=time_work)
     tr = datetime.timedelta(minutes=time_rest)
     
-    while True:
-        time.sleep(tw.total_seconds())
-        end_phase_notify("Work",time_rest)
-        time.sleep(tr.total_seconds())
-        end_phase_notify("Rest",time_work)
+    # This supresses the error messages from windows
+    sys.stderr = open("error.log", "w")
+    while True:   
+        time.sleep(tw.total_seconds()) 
+        end_phase_notify("Work",time_rest)        
+        time.sleep(tr.total_seconds())       
+        end_phase_notify("Rest",time_work)        
         pomo_ammount += 1
             
 
 def input_thread():
     while True:
         user_input = input("WRITE QUIT AND PRESS ENTER TO EXIT: ")
-        if(user_input[0].lower() == 'q'):
+        if(user_input and user_input[0].lower() == 'q'):
             pomo_running = False
             print(f"Pomotimer ended. Ammount of complete pomos: {pomo_ammount} Thanks for your time and hope to see you soon!")
             break
