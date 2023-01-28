@@ -2,9 +2,11 @@ from win10toast import ToastNotifier
 import argparse
 import time
 import datetime
+import threading
 
-default_times = {'w':30,'r':15}
+default_times = {'w':1,'r':1}
 pomo_running = False
+pomo_ammount = 0
 
 parser = argparse.ArgumentParser(description='This is a pomodoro timer')
 parser.add_argument('-w', '--work', help='Work time', type=int, required=False)
@@ -24,27 +26,37 @@ def start_pomo(time_work, time_rest):
     tw = datetime.timedelta(minutes=time_work)
     tr = datetime.timedelta(minutes=time_rest)
     
-    pomo_running = True
-    pomo_ammount = 3
-    
-    while pomo_running:
-        pomo_ammount-=1
+    while True:
         time.sleep(tw.total_seconds())
         end_phase_notify("Work",time_rest)
         time.sleep(tr.total_seconds())
         end_phase_notify("Rest",time_work)
-        if pomo_ammount == 0:
-            pomo_running = False
+        pomo_ammount += 1
             
-    print("Pomotimer ended. Thanks for your time and hope to see you soon!")
+
+def input_thread():
+    while True:
+        user_input = input("WRITE QUIT AND PRESS ENTER TO EXIT: ")
+        if(user_input[0].lower() == 'q'):
+            pomo_running = False
+            print(f"Pomotimer ended. Ammount of complete pomos: {pomo_ammount} Thanks for your time and hope to see you soon!")
+            break
+    quit()
     
 def main():
     # in minutes
     time_work = default_times['w'] if not args.work else args.work
     time_rest = default_times['r'] if not args.rest else args.rest
     
-    start_pomo(time_work, time_rest)
+    pomo_thr = threading.Thread(target=start_pomo, args=(time_work, time_rest))
+    pomo_thr.daemon = True
+    pomo_thr.start()
     
+    input_thr = threading.Thread(target=input_thread)
+    input_thr.daemon = False
+    input_thr.start()
+    
+
     
 if __name__ == "__main__":
     main()
