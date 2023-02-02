@@ -5,7 +5,7 @@ import datetime
 import threading
 import sys
 
-default_times = {'w':30,'r':15}
+default_times = {'w':30,'r':5}
 pomo_running = False
 pomo_ammount = 0
 
@@ -29,12 +29,19 @@ def start_pomo(time_work, time_rest):
     
     # This supresses the error messages from windows
     sys.stderr = open("error.log", "w")
+    pomo_count = 0
     while True:   
         time.sleep(tw.total_seconds()) 
-        end_phase_notify("Work",time_rest)        
-        time.sleep(tr.total_seconds())       
-        end_phase_notify("Rest",time_work)        
+        end_phase_notify("Work",time_rest)
+        if pomo_count < 3:
+            time.sleep(tr.total_seconds())       
+            end_phase_notify("Rest",time_work) 
+        else:
+            time.sleep(tr.total_seconds*3)        
+            end_phase_notify("Long Rest",time_work*3)
+            pomo_count = 0    
         pomo_ammount += 1
+        pomo_count += 1
             
 
 def input_thread():
