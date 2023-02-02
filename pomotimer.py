@@ -17,9 +17,10 @@ args = parser.parse_args()
     
 toaster = ToastNotifier()
 def end_phase_notify(phase, time):
-    toaster.show_toast("Pomotimer", f"{phase} time has ended. Take {time} minutes of rest!", duration=1)
+    toaster.show_toast("Pomotimer", f"{phase} time has ended. Take {time} minutes of rest!", duration=5)
     
 def start_pomo(time_work, time_rest):
+    global pomo_ammount
     print(f"Pomodoro timer started with {time_work} minutes of work time and {time_rest} minutes of rest time.")
     print("Good work and remember to concentrate!")
     print()
@@ -29,24 +30,25 @@ def start_pomo(time_work, time_rest):
     
     # This supresses the error messages from windows
     sys.stderr = open("error.log", "w")
-    pomo_count = 0
     while True:   
-        time.sleep(tw.total_seconds()) 
+        timer = tw.total_seconds()
+        while timer > 0:
+            time.sleep(1) 
+            print(timer, end="\r")
+            timer-=1
         end_phase_notify("Work",time_rest)
-        if pomo_count < 3:
-            time.sleep(tr.total_seconds())       
-            end_phase_notify("Rest",time_work) 
-        else:
-            time.sleep(tr.total_seconds*3)        
-            end_phase_notify("Long Rest",time_work*3)
-            pomo_count = 0    
-        pomo_ammount += 1
-        pomo_count += 1
+        timer = tr.total_seconds()
+        while timer > 0:    
+            time.sleep(1) 
+            print(f"{timer}", end="\r")
+            timer-=1
+        end_phase_notify("Rest",time_work)
+        pomo_ammount += 1       
             
 
 def input_thread():
+    user_input = input("WRITE QUIT AND PRESS ENTER TO EXIT: \n")
     while True:
-        user_input = input("WRITE QUIT AND PRESS ENTER TO EXIT: ")
         if(user_input and user_input[0].lower() == 'q'):
             pomo_running = False
             print(f"Pomotimer ended. Ammount of complete pomos: {pomo_ammount} Thanks for your time and hope to see you soon!")
