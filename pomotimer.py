@@ -55,13 +55,14 @@ def start_pomo(time_work, time_rest):
             
 
 def input_thread():
+    from sys import exit
     user_input = input("WRITE QUIT AND PRESS ENTER TO EXIT: \n")
     while True:
         if(user_input and user_input[0].lower() == 'q'):
             pomo_running = False
             print(f"Pomotimer ended. Ammount of complete pomos: {pomo_ammount} Thanks for your time and hope to see you soon!")
             break
-    quit()
+    exit()
     
 def main():
     # in minutes
