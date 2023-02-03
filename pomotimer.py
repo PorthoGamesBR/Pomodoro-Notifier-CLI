@@ -28,22 +28,30 @@ def start_pomo(time_work, time_rest):
     tw = datetime.timedelta(minutes=time_work)
     tr = datetime.timedelta(minutes=time_rest)
     
+    pomo_count = 0
     # This supresses the error messages from windows
     sys.stderr = open("error.log", "w")
     while True:   
         timer = tw.total_seconds()
+        phase = "Work"
         while timer > 0:
             time.sleep(1) 
             print(timer, end="\r")
             timer-=1
-        end_phase_notify("Work",time_rest)
+        end_phase_notify(phase,time_rest)
         timer = tr.total_seconds()
+        phase = "Rest"
+        if pomo_count > 3:
+            timer *= 3
+            pomo_count = -1
+            phase = "Long Rest"
         while timer > 0:    
             time.sleep(1) 
             print(f"{timer}", end="\r")
             timer-=1
-        end_phase_notify("Rest",time_work)
-        pomo_ammount += 1       
+        end_phase_notify(phase,time_work)
+        pomo_ammount += 1
+        pomo_count += 1       
             
 
 def input_thread():
